@@ -7,10 +7,12 @@ plugins {
 	kotlin("plugin.serialization")
 
 	id("com.github.johnrengelman.shadow")
+	id("dev.yumi.gradle.licenser")
 	id("io.gitlab.arturbosch.detekt")
+	id("io.sentry.jvm.gradle")
 }
 
-group = "template"
+group = "wiki.moderation"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -44,20 +46,20 @@ dependencies {
 }
 
 application {
-	mainClass.set("template.AppKt")
+	mainClass.set("wiki.moderation.bot.invites.AppKt")
 }
 
 tasks.withType<KotlinCompile> {
 	// Current LTS version of Java
 	kotlinOptions.jvmTarget = "17"
 
-	kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+	kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 
 tasks.jar {
 	manifest {
 		attributes(
-			"Main-Class" to "template.AppKt"
+			"Main-Class" to "wiki.moderation.bot.invites.AppKt"
 		)
 	}
 }
@@ -72,4 +74,22 @@ detekt {
 	buildUponDefaultConfig = true
 
 	config.from(rootProject.files("detekt.yml"))
+}
+
+license {
+	rule(
+		file("codeformat/HEADER")
+	)
+}
+
+if (System.getenv().containsKey("SENTRY_AUTH_TOKEN")) {
+	sentry {
+		includeSourceContext = true
+
+		org = "community-management-community"
+		projectName = "bot-general"
+		authToken = System.getenv("SENTRY_AUTH_TOKEN")
+	}
+} else {
+	logger.info("Not sending sources to Sentry as the 'SENTRY_AUTH_TOKEN' env var isn't set.")
 }
