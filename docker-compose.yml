@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  cmc-invites-bot:
+    image: ghcr.io/cmc-discord/bot-invites:latest
+    container_name: cmc-invites-bot
+
+    restart: always
+
+    environment:
+      - "ADAPTER_MONGODB_URI=mongodb://${DB_USERNAME}:${DB_PASSWORD}@cmc-invites-bot-db/"
+
+      - TOKEN
+
+  cmc-invites-bot-db:
+    image: mongo
+    container_name: cmc-invites-bot-db
+
+    restart: always
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${DB_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${DB_PASSWORD}"
+
+    volumes:
+      - cmc-invites-bot-db:/data/db
